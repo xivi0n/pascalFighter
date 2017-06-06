@@ -78,14 +78,12 @@ begin
         str(i,s);
         playerp1[i]:=Load('p1'+s+'.bmp');
         end;
- playerp1[4]:=Load('p12.bmp');
  Player2:=Load('idle2.bmp');
  for i:=1 to 3 do
         begin
         str(i,s);
         playerk2[i]:=load('g'+s+'.bmp');
         end;
- playerk2[4]:=load('g2.bmp');
 
 end;
 
@@ -105,7 +103,7 @@ procedure DrawPunch1;
                 end;
 var i:integer;
 begin
- for i:=1 to 4 do
+ for i:=1 to 3 do
         begin
         SDL_Delay(90);
         Draw(0,0,Background);
@@ -153,7 +151,7 @@ procedure DrawKick2;
                 end;
 var i:integer;
 begin
-for i:=1 to 4 do
+for i:=1 to 3 do
  begin
  SDL_Delay(90);
  Draw(0,0,Background);
