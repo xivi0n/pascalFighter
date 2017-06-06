@@ -11,7 +11,7 @@ var Surface, RealSurface:PSDL_Surface;
     PlayerY2:integer=249;
     playerf,playerg:array[1..5] of PSDL_Surface;
     kick,alive:boolean;
-    Anim2Start,Anim2End, Anim1Start,Anim1End:Cardinal;
+    KickAnim1,KickAnim2, TicksPerMSecond:Cardinal;
     ScaleMode: Integer=1;
 procedure Draw(X,Y:integer;Surf:PSDL_Surface);
         var
@@ -111,6 +111,7 @@ for i:=1 to 5 do
  SDL_Flip(surface);
  end;
  SDL_Delay(100);
+ KickAnim1:=SDL_GetTicks();
 end;
 
 procedure DrawAnimations2;
@@ -134,6 +135,7 @@ for i:=1 to 3 do
  SDL_Flip(surface);
  end;
 SDL_Delay(100);
+KickAnim2:=SDL_GetTicks();
 end;
 
 procedure UpdateGame;
@@ -154,17 +156,18 @@ procedure UpdateGame;
                 else if Key(SDLK_D) then MovePlayer1(1,PlayerX2, PlayerX1);
         if Key(SDLK_A) then MovePlayer1(-1,PlayerX2, PlayerX1)
                 else if Key(SDLK_S) then MovePlayer1(1,PlayerX2, PlayerX1);
-        if key(SDLK_Q) then begin
+        if key(SDLK_Q) then
+                if (SDL_GetTicks()-KickAnim1>400)
+                        or (KickAnim1=0) then
                                 DrawAnimations1;
-                                end;
 
         if Key(SDLK_UP) then MovePlayer2(-1,PlayerX1, PlayerX2)
                 else if Key(SDLK_RIGHT) then MovePlayer2(1,PlayerX1, PlayerX2);
         if Key(SDLK_LEFT) then MovePlayer2(-1,PlayerX1, PlayerX2)
                 else if Key(SDLK_DOWN) then MovePlayer2(1,PlayerX1, PlayerX2);
-        if key(SDLK_L) then begin
-                                DrawAnimations2;
-                                end;
+        if key(SDLK_L) then
+                if (SDL_GetTicks()-KickAnim2>400) then
+                                        DrawAnimations2;
         end;
 
 procedure MainLoop;
