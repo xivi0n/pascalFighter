@@ -9,7 +9,7 @@ var Surface, RealSurface:PSDL_Surface;
     PlayerY1:integer=240;
     PlayerX2:integer=580;
     PlayerY2:integer=240;
-    playerk1,playerk2,playerp1:array[1..5] of PSDL_Surface;
+    playerk1,playerk2,playerp1, playerk22:array[1..5] of PSDL_Surface;
     kick,alive:boolean;
     KickAnim1,KickAnim2,PunchAnim1:Cardinal;
     ScaleMode: Integer=1;
@@ -86,7 +86,11 @@ begin
         playerk2[i]:=load('g'+s+'.bmp');
         end;
  playerk2[4]:=load('g2.bmp');
-
+ for i:=1 to 5 do
+        begin
+        str(i,s);
+        playerk22[i]:=Load('gk2'+s+'.bmp');
+        end;
 end;
 
 procedure DrawScreen;
@@ -97,6 +101,7 @@ begin
  Draw(PlayerX2,PlayerY1,Player2);
  SDL_Flip(Surface);
 end;
+
 procedure DrawPunch1;
         procedure MovePlayer2(D:integer; Player1:integer; var Player:integer);
                 begin
@@ -169,6 +174,30 @@ SDL_Delay(100);
 KickAnim2:=SDL_GetTicks();
 end;
 
+procedure DrawKick22;
+        procedure MovePlayer1(D:integer; Player1:integer; var Player:integer);
+                begin
+                if(Player+D+25>Player1) or (Player+D<0) then Exit;
+                Player:=Player+D;
+                end;
+var i:integer;
+begin
+for i:=1 to 5 do
+ begin
+ SDL_Delay(90);
+ Draw(0,0,Background);
+ if Key(SDLK_W) then MovePlayer1(-5,PlayerX2, PlayerX1)
+                else if Key(SDLK_D) then MovePlayer1(5,PlayerX2, PlayerX1);
+        if Key(SDLK_A) then MovePlayer1(-5,PlayerX2, PlayerX1)
+                else if Key(SDLK_S) then MovePlayer1(5,PlayerX2, PlayerX1);
+ Draw(PlayerX1,PlayerY1,Player1);
+ Draw(PlayerX2,PlayerY2,playerk22[i]);
+ SDL_Flip(surface);
+ end;
+SDL_Delay(100);
+KickAnim2:=SDL_GetTicks();
+end;
+
 procedure UpdateGame;
 
         procedure MovePlayer2(D:integer; Player1:integer; var Player:integer);
@@ -203,7 +232,7 @@ procedure UpdateGame;
                 else if Key(SDLK_DOWN) then MovePlayer2(1,PlayerX1, PlayerX2);
         if key(SDLK_L) then
                 if (SDL_GetTicks()-KickAnim2>400) then
-                                        DrawKick2;
+                                        DrawKick22;
         end;
 
 procedure MainLoop;
