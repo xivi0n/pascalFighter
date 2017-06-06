@@ -98,7 +98,6 @@ procedure DrawAnimations1;
                 end;
 var i:integer;
 begin
-Anim1Start:=SDL_GetTicks()-Anim1Start;
 for i:=1 to 5 do
  begin
  SDL_Delay(90);
@@ -122,7 +121,6 @@ procedure DrawAnimations2;
                 end;
 var i:integer;
 begin
-Anim2Start:=SDL_GetTicks()-Anim2Start;
 for i:=1 to 3 do
  begin
  SDL_Delay(90);
@@ -157,8 +155,6 @@ procedure UpdateGame;
         if Key(SDLK_A) then MovePlayer1(-1,PlayerX2, PlayerX1)
                 else if Key(SDLK_S) then MovePlayer1(1,PlayerX2, PlayerX1);
         if key(SDLK_Q) then begin
-                                Anim1End:=SDL_GetTicks()-Anim1End;
-                                if (Anim1End-Anim1Start>200) or (Anim1Start=0) then
                                 DrawAnimations1;
                                 end;
 
@@ -167,9 +163,6 @@ procedure UpdateGame;
         if Key(SDLK_LEFT) then MovePlayer2(-1,PlayerX1, PlayerX2)
                 else if Key(SDLK_DOWN) then MovePlayer2(1,PlayerX1, PlayerX2);
         if key(SDLK_L) then begin
-                                Anim2End:=SDL_GetTicks()-Anim2End;
-                                write(Anim2End);
-                                if (Anim2End-Anim2Start>400) or (Anim2Start=0) then
                                 DrawAnimations2;
                                 end;
         end;
