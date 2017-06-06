@@ -4,15 +4,16 @@ uses sdl;
 var Surface, RealSurface:PSDL_Surface;
     Running:Boolean=true;
     KeyState:array[0..1024] of Boolean;
-    Background,Player1,Player2:PSDL_Surface;
-    PlayerX1:integer=40;
-    PlayerY1:integer=240;
+    Background,Player1,Player2,HPBar1,HPBar2,HPRed1,HPRed2:PSDL_Surface;
+    PlayerX1:integer=5;
+    PlayerY1:integer=230;
     PlayerX2:integer=580;
-    PlayerY2:integer=240;
+    PlayerY2:integer=230;
     playerk1,playerk2,playerp1, playerk22:array[1..5] of PSDL_Surface;
-    kick,alive:boolean;
+    kick,hpchange:boolean;
     KickAnim1,KickAnim2,PunchAnim1:Cardinal;
     ScaleMode: Integer=1;
+    Red1,Red2:integer;
 procedure Draw(X,Y:integer;Surf:PSDL_Surface);
         var
         R:TSDL_Rect;
@@ -23,15 +24,12 @@ procedure Draw(X,Y:integer;Surf:PSDL_Surface);
         R.h:=Surf^.h;
         SDL_BlitSurface(Surf,nil,Surface,@R);
         end;
+
 function Key(K:integer):Boolean;
         begin
         if (K >= Low(KeyState))and(K <= High(KeyState)) then Result:=Keystate[K] else Result:=False;
         end;
-{function InitVideo:boolean;
-        begin
-        Surface:=SDL_SetVideoMode(640,384,24,SDL_DOUBLEBUF);
-        Result:=assigned(Surface);
-        end;}
+
 function InitVideo: Boolean;
 var
   Flags: Cardinal = SDL_DOUBLEBUF or SDL_SWSURFACE;
@@ -48,11 +46,11 @@ begin
     if ParamStr(I)='-8bit' then Bits:=8;
   end;
   if ScaleMode > 1 then begin
-    RealSurface:=SDL_SetVideoMode(640*ScaleMode, 384*ScaleMode, 24, Flags);
+    RealSurface:=SDL_SetVideoMode(640*ScaleMode, 360*ScaleMode, 24, Flags);
     with RealSurface^.format^ do
-      Surface:=SDL_CreateRGBSurface(SDL_SWSURFACE, 640,384, 24, Rmask, Gmask, Bmask, Amask);
+      Surface:=SDL_CreateRGBSurface(SDL_SWSURFACE, 640,360, 24, Rmask, Gmask, Bmask, Amask);
   end else begin
-    Surface:=SDL_SetVideoMode(640, 384, Bits, Flags);
+    Surface:=SDL_SetVideoMode(640, 360, Bits, Flags);
     RealSurface:=Surface;
   end;
   Result:=Assigned(Surface);
@@ -91,16 +89,40 @@ begin
         str(i,s);
         playerk22[i]:=Load('gk2'+s+'.bmp');
         end;
+ HPBar1:=Load('hppool1.bmp');
+ HPBar2:=Load('hppool2.bmp');
+ HPRed1:=Load('hptickreduce1.bmp');
+ HPRed2:=Load('hptickreduce2.bmp');
 end;
-
+procedure DrawHPBars;
+        var i:integer;
+        begin
+        Draw(0,5,HPBar1);
+        Draw(320,5,HPBar2);
+        for i:=1 to Red1 do
+                begin
+                Draw(286-i,11,HPRed1);
+                end;
+        for i:=1 to Red2 do
+                begin
+                Draw(326+i,11,HPRed2);
+                end;
+        SDL_FLip(Surface);
+        end;
 procedure DrawScreen;
 
 begin
  Draw(0,0,Background);
  Draw(PlayerX1,PlayerY1,Player1);
  Draw(PlayerX2,PlayerY1,Player2);
+ DrawHPBars;
  SDL_Flip(Surface);
 end;
+
+function ifDO(X1,X2:integer):boolean;
+        begin
+        if (abs(X2-X1)<=45) then ifDO:=true else ifDO:=false;
+        end;
 
 procedure DrawPunch1;
         procedure MovePlayer2(D:integer; Player1:integer; var Player:integer);
@@ -114,10 +136,13 @@ begin
         begin
         SDL_Delay(90);
         Draw(0,0,Background);
+        DrawHPBars;
         if Key(SDLK_UP) then MovePlayer2(-5,PlayerX1, PlayerX2)
                 else if Key(SDLK_RIGHT) then MovePlayer2(5,PlayerX1, PlayerX2);
         if Key(SDLK_LEFT) then MovePlayer2(-5,PlayerX1, PlayerX2)
                 else if Key(SDLK_DOWN) then MovePlayer2(5,PlayerX1, PlayerX2);
+        HPChange:=ifDO(PlayerX1,PlayerX2);
+        if (HPChange=true) then Red2:=Red2+2;
         Draw(PlayerX2,PlayerY2,Player2);
         Draw(PlayerX1,PlayerY1,playerp1[i]);
         SDL_Flip(surface);
@@ -138,10 +163,13 @@ for i:=1 to 5 do
  begin
  SDL_Delay(90);
  Draw(0,0,Background);
+ DrawHPBars;
  if Key(SDLK_UP) then MovePlayer2(-5,PlayerX1, PlayerX2)
                 else if Key(SDLK_RIGHT) then MovePlayer2(5,PlayerX1, PlayerX2);
         if Key(SDLK_LEFT) then MovePlayer2(-5,PlayerX1, PlayerX2)
                 else if Key(SDLK_DOWN) then MovePlayer2(5,PlayerX1, PlayerX2);
+ HPChange:=ifDO(PlayerX1,PlayerX2);
+ if (HPChange=true) then Red2:=Red2+2;
  Draw(PlayerX2,PlayerY2,Player2);
  Draw(PlayerX1,PlayerY1,playerk1[i]);
  SDL_Flip(surface);
@@ -162,10 +190,13 @@ for i:=1 to 4 do
  begin
  SDL_Delay(90);
  Draw(0,0,Background);
+ DrawHPBars;
  if Key(SDLK_W) then MovePlayer1(-5,PlayerX2, PlayerX1)
                 else if Key(SDLK_D) then MovePlayer1(5,PlayerX2, PlayerX1);
         if Key(SDLK_A) then MovePlayer1(-5,PlayerX2, PlayerX1)
                 else if Key(SDLK_S) then MovePlayer1(5,PlayerX2, PlayerX1);
+ HPChange:=ifDO(PlayerX1,PlayerX2);
+ if (HPChange=true) then Red1:=Red1+2;
  Draw(PlayerX1,PlayerY1,Player1);
  Draw(PlayerX2,PlayerY2,playerk2[i]);
  SDL_Flip(surface);
@@ -186,10 +217,13 @@ for i:=1 to 5 do
  begin
  SDL_Delay(90);
  Draw(0,0,Background);
+ DrawHPBars;
  if Key(SDLK_W) then MovePlayer1(-5,PlayerX2, PlayerX1)
                 else if Key(SDLK_D) then MovePlayer1(5,PlayerX2, PlayerX1);
         if Key(SDLK_A) then MovePlayer1(-5,PlayerX2, PlayerX1)
                 else if Key(SDLK_S) then MovePlayer1(5,PlayerX2, PlayerX1);
+ HPChange:=ifDO(PlayerX1,PlayerX2);
+ if (HPChange=true) then Red1:=Red1+2;
  Draw(PlayerX1,PlayerY1,Player1);
  Draw(PlayerX2,PlayerY2,playerk22[i]);
  SDL_Flip(surface);
@@ -212,6 +246,8 @@ procedure UpdateGame;
                 end;
         var R:TSDL_Rect;
         begin
+        HPChange:=true;
+        if (HPChange=true) then DrawHPBars;
         if Key(SDLK_W) then MovePlayer1(-1,PlayerX2, PlayerX1)
                 else if Key(SDLK_D) then MovePlayer1(1,PlayerX2, PlayerX1);
         if Key(SDLK_A) then MovePlayer1(-1,PlayerX2, PlayerX1)
