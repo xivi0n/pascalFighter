@@ -9,7 +9,9 @@ var Surface, RealSurface:PSDL_Surface;
     PlayerY1:integer=230;
     PlayerX2:integer=580;
     PlayerY2:integer=230;
-    playerk1,playerk2,playerp1, playerk22:array[1..5] of PSDL_Surface;
+    playerk1,playerk2,
+        playerp1, playerk22,
+        playerd2,playerd1:array[1..5] of PSDL_Surface;
     kick,hpchange:boolean;
     KickAnim1,KickAnim2,PunchAnim1:Cardinal;
     ScaleMode: Integer=1;
@@ -89,11 +91,23 @@ begin
         str(i,s);
         playerk22[i]:=Load('gk2'+s+'.bmp');
         end;
+ for i:=1 to 5 do
+        begin
+        str(i,s);
+        playerd2[i]:=Load('gd'+s+'.bmp');
+        end;
+ for i:=1 to 5 do
+        begin
+        str(i,s);
+        playerd1[i]:=Load('pd'+s+'.bmp');
+        end;
  HPBar1:=Load('hppool1.bmp');
  HPBar2:=Load('hppool2.bmp');
  HPRed1:=Load('hptickreduce1.bmp');
  HPRed2:=Load('hptickreduce2.bmp');
 end;
+
+
 procedure DrawHPBars;
         var i:integer;
         begin
@@ -122,6 +136,36 @@ end;
 function ifDO(X1,X2:integer):boolean;
         begin
         if (abs(X2-X1)<=45) then ifDO:=true else ifDO:=false;
+        end;
+
+procedure DrawDeath2;
+        var i:integer;
+        begin
+        for i:=1 to 5 do
+                begin
+                SDL_Delay(150);
+                Draw(0,0,Background);
+                DrawHPBars;
+                Draw(PlayerX1, PlayerY1, Player1);
+                Draw(PlayerX2, PlayerY2, playerd2[i]);
+                SDL_Flip(surface);
+                end;
+        SDL_Delay(5000);
+        end;
+
+procedure DrawDeath1;
+        var i:integer;
+        begin
+        for i:=1 to 5 do
+                begin
+                SDL_Delay(150);
+                Draw(0,0,Background);
+                DrawHPBars;
+                Draw(PlayerX2, PlayerY2, Player2);
+                Draw(PlayerX1, PlayerY1, playerd1[i]);
+                SDL_Flip(surface);
+                end;
+        SDL_Delay(5000);
         end;
 
 procedure DrawPunch1;
@@ -232,6 +276,17 @@ SDL_Delay(100);
 KickAnim2:=SDL_GetTicks();
 end;
 
+procedure Player1WIN;
+        begin
+        DrawDeath2;
+        end;
+procedure Player2WIN;
+        begin
+        DrawDeath1;
+        end;
+
+
+
 procedure UpdateGame;
 
         procedure MovePlayer2(D:integer; Player1:integer; var Player:integer);
@@ -308,9 +363,18 @@ while Running do
                 UpdateGame;
                 inc(LastTime,30);
                 end;}
-        UpdateGame;
-        HandleEvents;
-        DrawScreen;
+        if (Red2>=314) then Player1WIN
+        else begin
+                UpdateGame;
+                HandleEvents;
+                DrawScreen;
+             end;
+        if (Red1>=316) then Player2WIN
+        else begin
+                UpdateGame;
+                HandleEvents;
+                DrawScreen;
+                end;
         end;
 end;
 begin
