@@ -8,7 +8,7 @@ var Surface, RealSurface:PSDL_Surface;
     Background,Player1,Player2,
         HPBar1,HPBar2,
         HPRed1,HPRed2,
-        UltimateTick,
+        UltimateTick,UltiReady,UltiBlack,
         StartButton,ExitButton,
         round0, round1, round2, dots:PSDL_Surface;
     PlayerX1:integer=5;
@@ -136,6 +136,8 @@ begin
  UltimateTick:=Load('ultimateTick.bmp');
  ExitButton:=Load('exitbutton.bmp');
  StartButton:=Load('startbutton.bmp');
+ UltiReady:=Load('ultimateready.bmp');
+ UltiBlack:=Load('UltimateBlack.bmp');
 end;
 
 procedure DrawBackground;
@@ -144,6 +146,8 @@ procedure DrawBackground;
                 else bki:=bki+1;
         SDL_Delay(30);
         Draw(0,0,bk1[bki]);
+        Draw(0,50,UltiBlack);
+        Draw(440,50,UltiBlack);
         end;
 
 procedure DrawMainMenu;
@@ -210,12 +214,14 @@ procedure DrawUltimateBars;
         begin
         for i:=1 to UltiBar1 do
                 begin
-                Draw(0+i,53,UltimateTick);
+                Draw(0+i,50,UltimateTick);
                 end;
         for  i:=UltiBar2 downto 1 do
                 begin
-                Draw(640-i,53,UltimateTick);
+                Draw(640-i,50,UltimateTick);
                 end;
+        if (UltiBar2=200) then Draw(480,55,UltiReady);
+        if (UltiBar1=200) then Draw(5,55,UltiReady);
         end;
 procedure DrawScreen;
 
