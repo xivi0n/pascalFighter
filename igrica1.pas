@@ -4,6 +4,7 @@ uses sdl;
 var Surface, RealSurface:PSDL_Surface;
     Running:Boolean=true;
     MainMenu:Boolean=true;
+    SelectMode: Boolean = True;
     KeyState:array[0..1024] of Boolean;
     Background,Player1,Player2,
         HPBar1,HPBar2,
@@ -18,11 +19,15 @@ var Surface, RealSurface:PSDL_Surface;
     playerk1,playerk2,
         playerp1, playerp2,
         playerk22,
-        playerd2,playerd1,bk1,bk5:array[1..25] of PSDL_Surface;
+        playerd2,playerd1,bk1,bk2,bk5:array[1..25] of PSDL_Surface;
     kick,hpchange:boolean;
     KickAnim1,KickAnim2,PunchAnim1, lastMove:Cardinal;
     ScaleMode: Integer=1;
-    Red1,Red2, M,bki, UltiBar1, UltiBar2,bk5i, RoundWin1, RoundWin2:integer;
+    Red1,Red2, M,bki,
+    UltiBar1, UltiBar2,
+    bk5i, bk2i,
+    RoundWin1, RoundWin2,
+    Mode:integer;
 procedure Draw(X,Y:integer;Surf:PSDL_Surface);
         var
         R:TSDL_Rect;
@@ -125,6 +130,12 @@ begin
         end;
  playerp2[5]:=Load('gp3.bmp');
 
+ for i:=1 to 16 do
+        begin
+        str(i,s);
+        bk2[i]:=Load('bk2'+s+'.bmp');
+        end;
+
  round0:=Load('0.bmp');
  round1:=Load('1.bmp');
  round2:=Load('2.bmp');
@@ -146,8 +157,6 @@ procedure DrawBackground;
                 else bki:=bki+1;
         SDL_Delay(30);
         Draw(0,0,bk1[bki]);
-        Draw(0,50,UltiBlack);
-        Draw(440,50,UltiBlack);
         end;
 
 procedure DrawMainMenu;
@@ -161,11 +170,13 @@ begin
         SDL_QUITEV: begin
           Running:=False;
           MainMenu:=False;
+          SelectMode:=False;
         end;
         SDL_KEYDOWN: case Ev.Key.KeySym.Sym of
           SDLK_ESCAPE: begin
             Running:=False;
             MainMenu:=False;
+            SelectMode:=False;
           end;
           SDLK_Space: MainMenu:=False;
         end;
@@ -181,6 +192,34 @@ begin
   end;
 end;
 
+procedure DrawSelectMode;
+var
+  Ev: TSDL_Event;
+begin
+  while SelectMode do begin
+    while SDL_PollEvent(@Ev) <> 0 do begin
+      case Ev.Type_ of
+        SDL_QUITEV: begin
+          Running:=False;
+        end;
+        SDL_KEYDOWN: case Ev.Key.KeySym.Sym of
+          SDLK_ESCAPE: begin
+            Running:=False;
+          end;
+          SDLK_1: begin SelectMode:=False; Mode:=1; end;
+          SDLK_2: begin SelectMode:=False; Mode:=2; end;
+          SDLK_3: begin SelectMode:=False; Mode:=3; end;
+          SDLK_4: begin SelectMode:=False; Mode:=4; end;
+        end;
+      end;
+    end;
+    if (bk2i=16) then bk2i:=1
+                        else bk2i:=bk2i+1;
+                        SDL_Delay(125);
+    SDL_BlitSurface(bk2[bk2i], nil, Surface, nil);
+    SDL_Flip(surface);
+  end;
+end;
 {procedure DrawMainMenu;
         begin
         Repeat
@@ -212,6 +251,8 @@ procedure DrawHPBars;
 procedure DrawUltimateBars;
         var i:integer;
         begin
+        Draw(0,50,UltiBlack);
+        Draw(440,50,UltiBlack);
         for i:=1 to UltiBar1 do
                 begin
                 Draw(0+i,50,UltimateTick);
@@ -437,7 +478,7 @@ procedure DrawStatus;
 procedure Player1WIN;
         begin
         DrawDeath2;
-        if (RoundWin1<=1) then begin ResetGame; RoundWin1:=RoundWin1+1; end;
+        if (RoundWin1<=1) then begin ResetGame; end;//RoundWin1:=RoundWin1+1; end;
         if (RoundWin1=2) then Running:=false;
         DrawStatus;
         end;
@@ -445,13 +486,51 @@ procedure Player1WIN;
 procedure Player2WIN;
         begin
         DrawDeath1;
-        if (RoundWin2<=1) then Begin ResetGame; RoundWin2:=RoundWin2+1; end;
+        if (RoundWin2<=1) then Begin ResetGame; end;//RoundWin2:=RoundWin2+1; end;
         if (RoundWin2=2) then Running:=false;
         write(roundwin2,' ', red1,' ',red2);
         DrawStatus;
         end;
+procedure Bot1;
 
-procedure Bot;
+        procedure MovePlayer1(D:integer; Player1:integer; var Player:integer);
+                begin
+                if(Player+D+25>Player1) or (Player+D<0) then Exit;
+                Player:=Player+D;
+                end;
+
+                procedure moveBot;
+                        var lastMove1:Cardinal; K:integer;
+                        begin
+                        K:=Random(10000);
+                        write(k);
+                        if (M=0) then begin m:=m+1; lastmove:=SDL_GetTicks(); end;
+                        if ((Red1<=Red2) or (SDL_GetTicks()-lastMove>5000))
+                                and (K>100)
+                         then begin
+                                 movePlayer1(5, PlayerX2, PlayerX1);
+                                 if (SDL_GetTicks()-lastMove>10000) then lastMove:=SDL_GetTicks();
+                                end
+                         else
+                                begin
+                                movePlayer1(-5,PlayerX2,PlayerX1);
+                                end;
+                        end;
+        var k:integer;
+        begin
+        K:=Random(10000);
+        if (ifDo(PlayerX2,PlayerX1)=true) then
+                begin
+                if (K<8500)  then moveBot
+                        else if (SDL_GetTicks()-KickAnim2>400) then
+                                begin
+                                        if (Random(2)=1) then DrawKick1
+                                         else DrawPunch1;
+                                end;
+                end
+                else moveBot;
+        end;
+procedure Bot2;
 
         procedure MovePlayer2(D:integer; Player1:integer; var Player:integer);
                 begin
@@ -527,7 +606,9 @@ procedure UpdateGame;
                 if (SDL_GetTicks()-PunchAnim1>400)
                         or (PunchAnim1=0) then
                                 DrawPunch1;
-        Bot;
+
+        if (Mode=2) or (Mode=4) then Bot2;
+        if (Mode=3) or (Mode=4) then Bot1;
 
         if Key(SDLK_UP) then MovePlayer2(-5,PlayerX1, PlayerX2)
                 else if Key(SDLK_RIGHT) then MovePlayer2(5,PlayerX1, PlayerX2);
@@ -608,7 +689,8 @@ begin
  SDL_WM_SetCaption('game','game');
  LoadImages;
  DrawMainMenu;
- SDL_Delay(500);
+ SDL_Delay(200);
+ DrawSelectMode;
  DrawScreen;
  MainLoop;
  SDL_Quit;
