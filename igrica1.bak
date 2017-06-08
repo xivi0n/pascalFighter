@@ -8,7 +8,8 @@ var Surface, RealSurface:PSDL_Surface;
     Background,Player1,Player2,
         HPBar1,HPBar2,
         HPRed1,HPRed2,
-        UltimateTick:PSDL_Surface;
+        UltimateTick,
+        StartButton,ExitButton:PSDL_Surface;
     PlayerX1:integer=5;
     PlayerY1:integer=230;
     PlayerX2:integer=580;
@@ -49,7 +50,7 @@ begin
     end;
     if ParamStr(I)='-double' then ScaleMode:=2;
     if ParamStr(I)='-triple' then ScaleMode:=3;
-    if ParamStr(I)='-8bit' then Bits:=8;
+    if ParamStr(I)='-8bit' then Bits:=24;
   end;
   if ScaleMode > 1 then begin
     RealSurface:=SDL_SetVideoMode(640*ScaleMode, 360*ScaleMode, 24, Flags);
@@ -121,6 +122,8 @@ begin
  HPRed1:=Load('hptickreduce1.bmp');
  HPRed2:=Load('hptickreduce2.bmp');
  UltimateTick:=Load('ultimateTick.bmp');
+ ExitButton:=Load('exitbutton.bmp');
+ StartButton:=Load('startbutton.bmp');
 end;
 
 procedure DrawBackground;
@@ -156,6 +159,8 @@ begin
                         else bk5i:=bk5i+1;
                         SDL_Delay(125);
     SDL_BlitSurface(bk5[bk5i], nil, Surface, nil);
+    Draw(20,50,StartButton);
+    Draw(24,100,ExitButton);
     SDL_Flip(surface);
   end;
 end;
@@ -296,7 +301,7 @@ for i:=1 to 5 do
         if Key(SDLK_LEFT) then MovePlayer2(-5,PlayerX1, PlayerX2)
                 else if Key(SDLK_DOWN) then MovePlayer2(5,PlayerX1, PlayerX2);
  HPChange:=ifDO(PlayerX1,PlayerX2);
- if (HPChange=true) then begin Red2:=Red2+2; movePlayer2(10,PlayerX1, PlayerX2); end;
+ if (HPChange=true) then begin Red2:=Red2+2; movePlayer2(2,PlayerX1, PlayerX2); end;
  Draw(PlayerX2,PlayerY2,Player2);
  Draw(PlayerX1,PlayerY1,playerk1[i]);
  SDL_Flip(surface);
@@ -527,6 +532,7 @@ begin
  SDL_WM_SetCaption('game','game');
  LoadImages;
  DrawMainMenu;
+ SDL_Delay(500);
  DrawScreen;
  MainLoop;
  SDL_Quit;
