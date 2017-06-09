@@ -661,6 +661,10 @@ procedure Bot1;
                 if(Player+D+25>Player1) or (Player+D<0) then Exit;
                 Player:=Player+D;
                 end;
+         procedure CheckForUlti1;
+                begin
+                if (UltiBar1=200) then begin  UltiBar1:=0; DrawUltimate1; end;
+                end;
 
                 procedure moveBot;
                         var lastMove1:Cardinal; K:integer;
@@ -687,6 +691,7 @@ procedure Bot1;
                 if (K<8500)  then moveBot
                         else if (SDL_GetTicks()-KickAnim2>400) then
                                 begin
+                                        CheckForUlti1;
                                         if (Random(2)=1) then DrawKick1
                                          else DrawPunch1;
                                 end;

@@ -274,6 +274,7 @@ begin
           SDLK_ESCAPE: begin
             Running:=False;
             SelectMode:=False;
+            Controls:=False;
             notQuit:=false;
           end;
           SDLK_1: begin SelectMode:=False; Mode:=1; end;
