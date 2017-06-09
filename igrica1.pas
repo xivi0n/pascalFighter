@@ -16,7 +16,7 @@ var Surface, RealSurface:PSDL_Surface;
         ChooseMode,PlayerControls,
         round0, round1, round2, dots,
         PlayerOneWin,PlayerTwoWin,
-        Dmg1:PSDL_Surface;
+        Dmg1, Dmg2,Dmg22:PSDL_Surface;
     PlayerX1:integer=5;
     PlayerY1:integer=230;
     PlayerX2:integer=580;
@@ -26,7 +26,7 @@ var Surface, RealSurface:PSDL_Surface;
         playerk22,
         playerd2,playerd1,
         bk1,bk2,bk3,bk5,
-        gu:array[1..25] of PSDL_Surface;
+        gu,pu:array[1..25] of PSDL_Surface;
     kick,hpchange:boolean;
     KickAnim1,KickAnim2,PunchAnim1, lastMove:Cardinal;
     ScaleMode: Integer=1;
@@ -154,7 +154,15 @@ begin
         str(i,s);
         gu[i]:=Load('gu'+s+'.bmp');
         end;
+ for i:=1 to 14 do
+        begin
+        str(i,s);
+        pu[i]:=Load('pu'+s+'.bmp');
+        end;
+
  Dmg1:=Load('player1fly.bmp');
+ Dmg2:=Load('player2fly.bmp');
+ Dmg22:=Load('player2fly2.bmp');
  round0:=Load('0.bmp');
  round1:=Load('1.bmp');
  round2:=Load('2.bmp');
@@ -342,7 +350,64 @@ function ifDO(X1,X2:integer):boolean;
         begin
         if (abs(X2-X1)<=45) then ifDO:=true else ifDO:=false;
         end;
+procedure DrawUltimate1;
 
+        procedure MovePlayer2(D:integer; Player1:integer; var Player:integer);
+                begin
+                if(Player+D-25 < Player1) or (Player+D >580) then Exit;
+                Player:=Player+D;
+                end;
+
+        var i,Y,j:integer; PL:PSDL_Surface;
+begin
+ PL:=Player1;
+ Y:=PlayerY1;
+ for i:=1 to 14 do
+        begin
+        SDL_Delay(80);
+        DrawBackground;
+        DrawUltimateBars;
+        DrawHPBars;
+        if (HPChange=true) then begin
+                                        if (i=1) then  PL:=Dmg2;
+                                        if (i=6) then PlayerY2:=PlayerY2-15;
+                                        if (i=14) then begin PlayerX2:=PlayerX2+10;
+                                                for j:=1 to 5 do
+                                                                begin
+                                                                SDL_Delay(1);
+                                                                DrawBackground;
+                                                                DrawUltimateBars;
+                                                                DrawHPBars;
+                                                                PlayerY2:=PlayerY2+3;
+                                                                Draw(PlayerX2,PlayerY2,PL);
+                                                                Draw(PlayerX1,PlayerY1,pu[13]);
+                                                                SDL_FLip(surface);
+                                                                end;
+                                                end;
+                                        Red2:=Red2+7;
+                                        end;
+        if  (i<>14) then Draw(PlayerX2,PlayerY2,Pl);
+        Draw(PlayerX1,PlayerY1,pu[i]);
+        HPChange:=ifDO(PlayerX1,PlayerX2);
+        SDL_Flip(surface);
+        end;
+if (HPChange=true) then begin
+        DrawBackground;
+        DrawUltimateBars;
+        DrawHPBars;
+        Draw(PlayerX2,PlayerY2,Dmg22);
+        Draw(PlayerX1,PlayerY1,pu[14]);
+        SDL_Flip(Surface);
+        SDL_Delay(250);
+        DrawBackground;
+        DrawUltimateBars;
+        DrawHPBars;
+        Draw(PlayerX2,PlayerY2,Dmg2);
+        Draw(PlayerX1,PlayerY1,pu[14]);
+        SDL_Flip(Surface);
+        SDL_Delay(250);
+        end;
+end;
 procedure DrawUltimate2;
 
         procedure MovePlayer1(D:integer; Player1:integer; var Player:integer);
@@ -596,6 +661,10 @@ procedure Bot1;
                 if(Player+D+25>Player1) or (Player+D<0) then Exit;
                 Player:=Player+D;
                 end;
+         procedure CheckForUlti1;
+                begin
+                if (UltiBar1=200) then begin  UltiBar1:=0; DrawUltimate1; end;
+                end;
 
                 procedure moveBot;
                         var lastMove1:Cardinal; K:integer;
@@ -622,6 +691,7 @@ procedure Bot1;
                 if (K<8500)  then moveBot
                         else if (SDL_GetTicks()-KickAnim2>400) then
                                 begin
+                                        CheckForUlti1;
                                         if (Random(2)=1) then DrawKick1
                                          else DrawPunch1;
                                 end;
@@ -686,7 +756,7 @@ procedure UpdateGame;
 
         procedure CheckForUlti1;
                 begin
-                if (UltiBar1=200) then begin  UltiBar1:=0; DrawPunch1; end;
+                if (UltiBar1=200) then begin  UltiBar1:=0; DrawUltimate1; end;
                 end;
         procedure CheckForUlti2;
                 begin
