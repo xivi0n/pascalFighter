@@ -5,12 +5,14 @@ var Surface, RealSurface:PSDL_Surface;
     Running:Boolean=true;
     MainMenu:Boolean=true;
     SelectMode: Boolean = True;
+    Controls: Boolean = True;
     KeyState:array[0..1024] of Boolean;
     Background,Player1,Player2,
         HPBar1,HPBar2,
         HPRed1,HPRed2,
         UltimateTick,UltiReady,UltiBlack,
         StartButton,ExitButton,
+        ChooseMode,PlayerControls,
         round0, round1, round2, dots:PSDL_Surface;
     PlayerX1:integer=5;
     PlayerY1:integer=230;
@@ -19,11 +21,11 @@ var Surface, RealSurface:PSDL_Surface;
     playerk1,playerk2,
         playerp1, playerp2,
         playerk22,
-        playerd2,playerd1,bk1,bk2,bk5:array[1..25] of PSDL_Surface;
+        playerd2,playerd1,bk1,bk2,bk3,bk5:array[1..25] of PSDL_Surface;
     kick,hpchange:boolean;
     KickAnim1,KickAnim2,PunchAnim1, lastMove:Cardinal;
     ScaleMode: Integer=1;
-    Red1,Red2, M,bki,
+    Red1,Red2, M,bki,bk3i,
     UltiBar1, UltiBar2,
     bk5i, bk2i,
     RoundWin1, RoundWin2,
@@ -135,7 +137,11 @@ begin
         str(i,s);
         bk2[i]:=Load('bk2'+s+'.bmp');
         end;
-
+ for i:=0 to 7 do
+        begin
+        str(i,s);
+        bk3[i+1]:=Load('tmp-'+s+'.bmp');
+        end;
  round0:=Load('0.bmp');
  round1:=Load('1.bmp');
  round2:=Load('2.bmp');
@@ -145,10 +151,12 @@ begin
  HPRed1:=Load('hptickreduce1.bmp');
  HPRed2:=Load('hptickreduce2.bmp');
  UltimateTick:=Load('ultimateTick.bmp');
- ExitButton:=Load('exitbutton.bmp');
- StartButton:=Load('startbutton.bmp');
+ ExitButton:=Load('pressEsc.bmp');
+ StartButton:=Load('pressStart.bmp');
  UltiReady:=Load('ultimateready.bmp');
  UltiBlack:=Load('UltimateBlack.bmp');
+ PlayerControls:=Load('playerControls.bmp');
+ ChooseMode:=Load('chooseMode.bmp');
 end;
 
 procedure DrawBackground;
@@ -171,12 +179,14 @@ begin
           Running:=False;
           MainMenu:=False;
           SelectMode:=False;
+          Controls:=False;
         end;
         SDL_KEYDOWN: case Ev.Key.KeySym.Sym of
           SDLK_ESCAPE: begin
             Running:=False;
             MainMenu:=False;
             SelectMode:=False;
+            Controls:=False;
           end;
           SDLK_Space: MainMenu:=False;
         end;
@@ -187,7 +197,36 @@ begin
                         SDL_Delay(125);
     SDL_BlitSurface(bk5[bk5i], nil, Surface, nil);
     Draw(20,50,StartButton);
-    Draw(23,100,ExitButton);
+    Draw(20,120,ExitButton);
+    SDL_Flip(surface);
+  end;
+end;
+
+procedure DrawPlayerControl;
+var
+  Ev: TSDL_Event;
+begin
+  while Controls do begin
+    while SDL_PollEvent(@Ev) <> 0  do begin
+      case Ev.Type_ of
+        SDL_QUITEV: begin
+          Running:=False;
+          Controls:=False;
+        end;
+        SDL_KEYDOWN: case Ev.Key.KeySym.Sym of
+          SDLK_ESCAPE: begin
+            Running:=False;
+            Controls:=False;
+          end;
+          SDLK_Space: begin Controls:=False; end;
+        end;
+      end;
+    end;
+    if (bk3i=8) then bk3i:=1
+                        else bk3i:=bk3i+1;
+                        SDL_Delay(125);
+    SDL_BlitSurface(bk3[bk3i], nil, Surface, nil);
+    Draw(4,12,PlayerControls);
     SDL_Flip(surface);
   end;
 end;
@@ -201,10 +240,12 @@ begin
       case Ev.Type_ of
         SDL_QUITEV: begin
           Running:=False;
+          SelectMode:=False;
         end;
         SDL_KEYDOWN: case Ev.Key.KeySym.Sym of
           SDLK_ESCAPE: begin
             Running:=False;
+            SelectMode:=False;
           end;
           SDLK_1: begin SelectMode:=False; Mode:=1; end;
           SDLK_2: begin SelectMode:=False; Mode:=2; end;
@@ -217,6 +258,7 @@ begin
                         else bk2i:=bk2i+1;
                         SDL_Delay(125);
     SDL_BlitSurface(bk2[bk2i], nil, Surface, nil);
+    Draw(4,12,ChooseMode);
     SDL_Flip(surface);
   end;
 end;
@@ -691,6 +733,8 @@ begin
  DrawMainMenu;
  SDL_Delay(200);
  DrawSelectMode;
+ DrawPlayerControl;
+ SDL_Delay(5000);
  DrawScreen;
  MainLoop;
  SDL_Quit;
