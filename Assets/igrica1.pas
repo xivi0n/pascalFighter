@@ -213,7 +213,7 @@ begin
             Controls:=False;
             NotQuit:=false;
           end;
-          SDLK_Space: MainMenu:=False;
+          SDLK_S: MainMenu:=False;
         end;
       end;
     end;
@@ -363,6 +363,8 @@ procedure DrawUltimate1;
 begin
  PL:=Player1;
  Y:=PlayerY1;
+ HPChange:=ifDO(PlayerX1,PlayerX2);
+ if (HPChange=false) then PL:=Player2;
  for i:=1 to 14 do
         begin
         SDL_Delay(80);
@@ -387,9 +389,8 @@ begin
                                                 end;
                                         Red2:=Red2+7;
                                         end;
-        if  (i<>14) then Draw(PlayerX2,PlayerY2,Pl);
+        Draw(PlayerX2,PlayerY2,Pl);
         Draw(PlayerX1,PlayerY1,pu[i]);
-        HPChange:=ifDO(PlayerX1,PlayerX2);
         SDL_Flip(surface);
         end;
 if (HPChange=true) then begin
@@ -421,6 +422,7 @@ procedure DrawUltimate2;
 begin
  PL:=Player1;
  Y:=PlayerY1;
+ HPChange:=ifDO(PlayerX1,PlayerX2);
  for i:=1 to 12 do
         begin
         SDL_Delay(80);
@@ -433,7 +435,6 @@ begin
                                         end;
         Draw(PlayerX1,PlayerY1,Pl);
         Draw(PlayerX2,PlayerY2,gu[i]);
-        HPChange:=ifDO(PlayerX1,PlayerX2);
         SDL_Flip(surface);
         end;
 if (HPChange=true) then
