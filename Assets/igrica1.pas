@@ -387,7 +387,7 @@ begin
                                                                 SDL_FLip(surface);
                                                                 end;
                                                 end;
-                                        Red2:=Red2+7;
+                                        Red2:=Red2+6;
                                         end;
         Draw(PlayerX2,PlayerY2,Pl);
         Draw(PlayerX1,PlayerY1,pu[i]);
@@ -493,6 +493,8 @@ begin
         begin
         SDL_Delay(40);
         DrawBackground;
+        if (UltiBar1<200) then Inc(UltiBar1);
+        if (UltiBar2<200) then Inc(UltiBar2);
         DrawUltimateBars;
         DrawHPBars;
         if Key(SDLK_UP) then MovePlayer2(-5,PlayerX1, PlayerX2)
@@ -522,6 +524,8 @@ begin
 for i:=1 to 5 do
  begin
  DrawBackground;
+ if (UltiBar1<200) then Inc(UltiBar1);
+ if (UltiBar2<200) then Inc(UltiBar2);
  DrawUltimateBars;
  DrawHPBars;
  if Key(SDLK_UP) then MovePlayer2(-5,PlayerX1, PlayerX2)
@@ -552,6 +556,8 @@ for i:=1 to 5 do
  begin
  SDL_Delay(40);
  DrawBackground;
+ if (UltiBar1<200) then Inc(UltiBar1);
+ if (UltiBar2<200) then Inc(UltiBar2);
  DrawUltimateBars;
  DrawHPBars;
  if Key(SDLK_W) then MovePlayer1(-5,PlayerX2, PlayerX1)
@@ -580,6 +586,8 @@ for i:=1 to 5 do
  begin
  SDL_Delay(40);
  DrawBackground;
+ if (UltiBar1<200) then Inc(UltiBar1);
+ if (UltiBar2<200) then Inc(UltiBar2);
  DrawUltimateBars;
  DrawHPBars;
  if Key(SDLK_W) then MovePlayer1(-5,PlayerX2, PlayerX1)
